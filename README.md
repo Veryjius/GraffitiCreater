@@ -1,6 +1,6 @@
 ﻿# 涂鸦生成器
 
-基于浏览器的绘图工具，能够通过随机生成线条、曲线和颜色来模拟涂鸦效果。用户可以通过上传图片作为参考，程序会自动绘制线条以接近参考图片的效果。支持多种线条样式、起始点模式和颜色拟合功能。
+基于浏览器的乱画工具，能够通过随机生成线条、曲线和颜色来模拟涂鸦效果。用户可以通过上传图片作为参考，程序会自动绘制线条以接近参考图片的效果。支持多种线条样式、起始点模式和颜色拟合功能。
 ![页面示例图片](https://github.com/Veryjius/GraffitiCreater/blob/master/Running.png)
 
 ## 功能特性
@@ -35,11 +35,11 @@
 
 ## 文件结构
 
-/project
-  │
-  ├── index.html # 主页面文件，用于绘制图形和处理图像数据。
-  ├── styles/main.css # 样式文件
-  └── scripts/app.js # JavaScript 逻辑文件
+/project  
+  │  
+  ├── index.html # 主页面文件，用于绘制图形和处理图像数据。  
+  ├── styles/main.css # 样式文件  
+  └── scripts/app.js # JavaScript 逻辑文件  
 
 ## 运行方式
 
