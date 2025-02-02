@@ -36,10 +36,10 @@
 ## 文件结构
 
 /project
-│
-├── index.html # 主页面文件，用于绘制图形和处理图像数据。
-├── styles/main.css # 样式文件
-└── scripts/app.js # JavaScript 逻辑文件
+  │
+  ├── index.html # 主页面文件，用于绘制图形和处理图像数据。
+  ├── styles/main.css # 样式文件
+  └── scripts/app.js # JavaScript 逻辑文件
 
 ## 运行方式
 
