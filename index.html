@@ -25,6 +25,7 @@
                 <option value="dashed">虚线</option>
                 <option value="dotted">点线</option>
                 <option value="dashDot">点划线</option>
+				<option value="circleDot">圆点模式</option> <!-- 新增项 -->
                 <option value="random">随机样式</option>
             </select>
         </div>
@@ -40,7 +41,7 @@
                 二次曲线概率 <input type="number" id="quadProb" value="30" min="0" max="100" step="5">%
             </span>
         </div>
-
+		
         <div class="control-group">
             <label>起始点模式：</label>
             <select id="startPointMode">
@@ -61,6 +62,7 @@
                 <input type="number" id="maxWidth" value="5" min="1" max="50">
             </label>
         </div>
+
     </div>
 
     <!-- 画布容器 -->
