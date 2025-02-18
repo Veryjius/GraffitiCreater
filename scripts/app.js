@@ -2,17 +2,17 @@
 // 全局状态管理
 // ======================
 const state = {
-    isDrawing: false,        // 是否正在绘制
-    backupImage: null,       // 画布备份数据
-    lastScore: null,         // 当前差异值
-    initialScore: null,      // 初始差异值（白纸状态）
-    ctx: null,               // 绘制画布上下文
-    sampleCtx: null,         // 样本画布上下文
-    sampleData: null,        // 样本像素数据
-    imageScale: 1,           // 图片缩放比例
-    startPoint: null,        // 用户指定的起始点
-    startMode: 'random',     // 当前起始点模式
-    activeColorFit: false    // 是否启用颜色拟合
+    isDrawing: false,
+    backupImage: null,
+    lastScore: null,
+    initialScore: null,
+    ctx: null,
+    sampleCtx: null,
+    sampleData: null,
+    imageScale: 1,
+    startPoint: null,
+    startMode: 'random',
+    activeColorFit: false
 };
 
 // ======================
@@ -25,11 +25,11 @@ const LINE_STYLES = {
     dashDot: [10, 2, 2, 2],
     random: function() {
         const patterns = [
-            [10, 5],      // 虚线
-            [2, 4],       // 点线
-            [5, 5],       // 短虚线
-            [10, 2, 2, 2],// 点划线
-            [8, 8]        // 长虚线
+            [10, 5],
+            [2, 4],
+            [5, 5],
+            [10, 2, 2, 2],
+            [8, 8]
         ];
         return patterns[Math.floor(Math.random() * patterns.length)];
     }
@@ -42,7 +42,6 @@ function initCanvases(width, height) {
     const sampleCanvas = document.getElementById('sampleImg');
     const myCanvas = document.getElementById('myCanvas');
     
-    // 设置画布尺寸（保持显示尺寸与逻辑尺寸一致）
     [sampleCanvas, myCanvas].forEach(canvas => {
         canvas.width = width;
         canvas.height = height;
@@ -50,10 +49,9 @@ function initCanvases(width, height) {
         canvas.style.height = height + 'px';
     });
 
-    // 初始化绘图上下文
     state.ctx = myCanvas.getContext('2d');
     state.sampleCtx = sampleCanvas.getContext('2d');
-    state.ctx.lineCap = 'round';  // 设置圆形线帽
+    state.ctx.lineCap = 'round';
 }
 
 // ======================
@@ -63,7 +61,6 @@ document.getElementById('upload').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
 
-    // 禁用按钮防止重复上传
     document.getElementById('uploadBtn').disabled = true;
     updateStatus("正在加载原图...");
 
@@ -71,12 +68,10 @@ document.getElementById('upload').addEventListener('change', function(e) {
     reader.onload = function(event) {
         const img = new Image();
         img.onload = function() {
-            // 限制最大尺寸为800px
             const maxSize = 800;
             let width = img.naturalWidth;
             let height = img.naturalHeight;
 
-            // 计算缩放比例
             if (width > maxSize || height > maxSize) {
                 const scale = maxSize / Math.max(width, height);
                 width = Math.floor(width * scale);
@@ -84,18 +79,14 @@ document.getElementById('upload').addEventListener('change', function(e) {
                 state.imageScale = scale;
             }
 
-            // 初始化画布
             initCanvases(width, height);
             
-            // 绘制样本图片
             state.sampleCtx.drawImage(img, 0, 0, width, height);
             state.sampleData = state.sampleCtx.getImageData(0, 0, width, height).data;
             
-            // 初始化绘制画布（白色背景）
             state.ctx.fillStyle = 'white';
             state.ctx.fillRect(0, 0, width, height);
             
-            // 计算初始差异值
             calculateInitialScore();
             updateStatus("原图已加载，可上传进度或开始绘制");
             document.getElementById('uploadBtn').disabled = false;
@@ -106,13 +97,12 @@ document.getElementById('upload').addEventListener('change', function(e) {
 });
 
 // ======================
-// 进度图片上传处理
+// 进度图片上传
 // ======================
 document.getElementById('uploadProgress').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
 
-    // 禁用按钮防止重复上传
     document.getElementById('uploadProgressBtn').disabled = true;
     updateStatus("正在加载进度...");
 
@@ -120,7 +110,6 @@ document.getElementById('uploadProgress').addEventListener('change', function(e)
     reader.onload = function(event) {
         const img = new Image();
         img.onload = function() {
-            // 检查尺寸匹配
             if (img.width !== state.sampleCtx.canvas.width || 
                 img.height !== state.sampleCtx.canvas.height) {
                 alert('进度图片尺寸不匹配原图！');
@@ -128,10 +117,7 @@ document.getElementById('uploadProgress').addEventListener('change', function(e)
                 return;
             }
 
-            // 绘制到绘制画布
             state.ctx.drawImage(img, 0, 0);
-            
-            // 更新初始分数
             state.lastScore = calculateSimilarity();
             updateStatus(`进度已加载，当前相似度：${getSimilarityPercentage()}%`);
             document.getElementById('uploadProgressBtn').disabled = false;
@@ -142,72 +128,86 @@ document.getElementById('uploadProgress').addEventListener('change', function(e)
 });
 
 // ======================
-// 新增线条样式设置函数
+// 圆点绘制函数
 // ======================
-function setLineStyle(ctx) {
-    const style = document.getElementById('lineStyle').value;
-    
-    if (style === 'random') {
-        ctx.setLineDash(LINE_STYLES.random());
-    } else {
-        ctx.setLineDash(LINE_STYLES[style]);
-    }
-    
-    // 设置虚线偏移量产生动态效果
-    ctx.lineDashOffset = Math.random() * 10;
+function drawSingleCircle(ctx, center) {
+    ctx.beginPath();
+    ctx.arc(center.x, center.y, ctx.lineWidth/2, 0, Math.PI*2);
+    ctx.fill();
 }
 
 // ======================
-// 绘制函数（增加线条样式）
+// 核心绘制函数
 // ======================
-function drawRandomCurve() {
+function drawRandomCurve(overrideParams = null) {
     const canvas = document.getElementById('myCanvas');
     const ctx = state.ctx;
+    const lineStyle = document.getElementById('lineStyle').value;
     
-    // 保存当前画布状态
     ctx.save();
-    
-    // ===== 设置线条样式 =====
-    // 设置虚线样式
-    setLineStyle(ctx);
-    
-    // 设置线条颜色
-    const start = generateStartPoint();
-    if (document.getElementById('colorFit').checked) {
-        ctx.strokeStyle = getSampleColor(start.x, start.y);
-    } else {
-        ctx.strokeStyle = `hsl(${Math.random()*360}, 70%, 50%)`;
-    }
-    
-    // 设置线条粗细
-    const minWidth = parseInt(document.getElementById('minWidth').value);
-    const maxWidth = parseInt(document.getElementById('maxWidth').value);
-    ctx.lineWidth = Math.random() * (maxWidth - minWidth) + minWidth;
 
-    // ===== 生成控制点 =====
+    // 参数覆盖逻辑
+    if (overrideParams) {
+        ctx.lineWidth = overrideParams.lineWidth;
+        ctx.strokeStyle = overrideParams.strokeStyle;
+        ctx.fillStyle = overrideParams.fillStyle;
+    } else {
+        // 正常参数设置
+        const minWidth = parseInt(document.getElementById('minWidth').value);
+        const maxWidth = parseInt(document.getElementById('maxWidth').value);
+        ctx.lineWidth = Math.random() * (maxWidth - minWidth) + minWidth;
+
+        const start = generateStartPoint();
+        if (document.getElementById('colorFit').checked) {
+            ctx.fillStyle = getSampleColor(start.x, start.y);
+            ctx.strokeStyle = ctx.fillStyle;
+        } else {
+            const randomColor = `hsl(${Math.random()*360}, 70%, 50%)`;
+            ctx.fillStyle = randomColor;
+            ctx.strokeStyle = randomColor;
+        }
+    }
+
+    // 圆点模式处理
+    if (lineStyle === 'circleDot') {
+        drawSingleCircle(ctx, generateStartPoint());
+        ctx.restore();
+        return { 
+            color: ctx.strokeStyle, 
+            width: ctx.lineWidth 
+        };
+    }
+
+    // 常规线条设置
+    if (lineStyle === 'random') {
+        ctx.setLineDash(LINE_STYLES.random());
+    } else {
+        ctx.setLineDash(LINE_STYLES[lineStyle]);
+    }
+    ctx.lineDashOffset = Math.random() * 10;
+
+    // 路径生成
     const end = { 
         x: Math.random() * canvas.width, 
         y: Math.random() * canvas.height 
     };
+    const start = generateStartPoint();
 
     ctx.beginPath();
     ctx.moveTo(start.x, start.y);
     
-    // ===== 选择线段类型 =====
     const lineMode = document.getElementById('lineMode').value;
     if (lineMode === 'straight') {
         ctx.lineTo(end.x, end.y);
     } else {
         const quadProb = parseInt(document.getElementById('quadProb').value);
         if (Math.random() * 100 < quadProb) {
-            // 二次贝塞尔曲线
             const cp = { 
                 x: start.x + (end.x - start.x) * Math.random(),
                 y: start.y + (end.y - start.y) * Math.random()
             };
             ctx.quadraticCurveTo(cp.x, cp.y, end.x, end.y);
         } else {
-            // 三次贝塞尔曲线
             const cp1 = { 
                 x: start.x + (end.x - start.x) * Math.random(),
                 y: start.y + (end.y - start.y) * Math.random()
@@ -221,10 +221,83 @@ function drawRandomCurve() {
     }
     
     ctx.stroke();
-    ctx.restore(); // 恢复画布状态
+    ctx.restore();
+
+    return { 
+        color: ctx.strokeStyle, 
+        width: ctx.lineWidth 
+    };
 }
 
-// 坐标转换函数
+// ======================
+// 颜色处理函数
+// ======================
+function getInverseColor(originalColor) {
+    const match = originalColor.match(/\d+/g);
+    const r = 255 - parseInt(match[0]);
+    const g = 255 - parseInt(match[1]);
+    const b = 255 - parseInt(match[2]);
+    return `rgb(${r},${g},${b})`;
+}
+
+function generateRandomColor() {
+    return `hsl(${Math.random()*360}, 70%, 50%)`;
+}
+
+// ======================
+// 绘制循环
+// ======================
+function drawingStep() {
+    if (!state.isDrawing) return;
+    const startTime = performance.now();
+    let steps = 0;
+    
+    while (performance.now() - startTime < 16 && steps < 5) {
+        const backup = state.ctx.getImageData(0, 0, state.ctx.canvas.width, state.ctx.canvas.height);
+        const pathParams = drawRandomCurve();
+        const newScore = calculateSimilarity();
+
+        if (newScore < state.lastScore) {
+            state.lastScore = newScore;
+            state.backupImage = backup;
+
+            // 随机性触发逻辑
+            if (document.getElementById('colorFit').checked && Math.random() < 0.001) {
+                let newColor;
+                do {
+                    newColor = generateRandomColor();
+                } while(newColor === getInverseColor(pathParams.color));
+
+                const newWidth = Math.min(pathParams.width * 30, 75);
+
+                const specialBackup = state.ctx.getImageData(0, 0, state.ctx.canvas.width, state.ctx.canvas.height);
+                drawRandomCurve({
+                    lineWidth: newWidth,
+                    strokeStyle: newColor,
+                    fillStyle: newColor
+                });
+                
+                const specialScore = calculateSimilarity();
+                if (specialScore < state.lastScore) {
+                    state.lastScore = specialScore;
+                    state.backupImage = specialBackup;
+                } else {
+                    state.ctx.putImageData(specialBackup, 0, 0);
+                }
+            }
+        } else {
+            state.ctx.putImageData(backup, 0, 0);
+        }
+        steps++;
+    }
+    
+    updateStatus(`相似度：${getSimilarityPercentage()}% (每秒${steps * 60}笔)`);
+    requestAnimationFrame(drawingStep);
+}
+
+// ======================
+// 辅助函数
+// ======================
 function convertCoordinates(canvas, clientX, clientY) {
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
@@ -235,7 +308,6 @@ function convertCoordinates(canvas, clientX, clientY) {
     };
 }
 
-// 起始点生成函数
 function generateStartPoint() {
     const canvas = document.getElementById('sampleImg');
     const mode = document.getElementById('startPointMode').value;
@@ -248,7 +320,6 @@ function generateStartPoint() {
     }
 }
 
-// 生成边界点辅助函数
 function generateBorderPoint(canvas) {
     const side = Math.floor(Math.random() * 4);
     const pos = Math.random();
@@ -258,7 +329,6 @@ function generateBorderPoint(canvas) {
     };
 }
 
-// 颜色获取函数
 function getSampleColor(x, y) {
     const data = state.sampleData;
     const width = state.sampleCtx.canvas.width;
@@ -268,7 +338,6 @@ function getSampleColor(x, y) {
     return `rgb(${data[index]}, ${data[index+1]}, ${data[index+2]})`;
 }
 
-// 计算初始分数
 function calculateInitialScore() {
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = state.sampleCtx.canvas.width;
@@ -280,7 +349,6 @@ function calculateInitialScore() {
     state.lastScore = state.initialScore;
 }
 
-// 相似度计算
 function calculateSimilarityRaw(currentData) {
     let totalDiff = 0;
     for (let i = 0; i < state.sampleData.length; i += 16) {
@@ -295,33 +363,13 @@ function calculateSimilarity() {
     return calculateSimilarityRaw(state.ctx.getImageData(0, 0, state.ctx.canvas.width, state.ctx.canvas.height).data);
 }
 
-// 相似度百分比
 function getSimilarityPercentage() {
     return state.initialScore ? Math.max(0, Math.min(100, (1 - state.lastScore / state.initialScore) * 100)).toFixed(1) : 0;
 }
 
-// 绘制循环
-function drawingStep() {
-    if (!state.isDrawing) return;
-    const startTime = performance.now();
-    let steps = 0;
-    while (performance.now() - startTime < 16 && steps < 5) {
-        const backup = state.ctx.getImageData(0, 0, state.ctx.canvas.width, state.ctx.canvas.height);
-        drawRandomCurve();
-        const newScore = calculateSimilarity();
-        if (newScore < state.lastScore) {
-            state.lastScore = newScore;
-            state.backupImage = backup;
-        } else {
-            state.ctx.putImageData(backup, 0, 0);
-        }
-        steps++;
-    }
-    updateStatus(`相似度：${getSimilarityPercentage()}% (每秒${steps * 60}笔)`);
-    requestAnimationFrame(drawingStep);
-}
-
-// 切换绘制状态
+// ======================
+// 控制函数
+// ======================
 function toggleDrawing() {
     state.isDrawing = !state.isDrawing;
     const drawBtn = document.getElementById('drawBtn');
@@ -330,7 +378,13 @@ function toggleDrawing() {
     if (state.isDrawing) requestAnimationFrame(drawingStep);
 }
 
-// 事件监听器
+function updateStatus(text) {
+    document.getElementById('status').textContent = text;
+}
+
+// ======================
+// 事件监听
+// ======================
 document.getElementById('sampleImg').addEventListener('click', function(e) {
     if (document.getElementById('startPointMode').value === 'user') {
         const pos = convertCoordinates(this, e.clientX, e.clientY);
@@ -343,17 +397,13 @@ document.getElementById('lineMode').addEventListener('change', function() {
     document.getElementById('curveControls').style.display = this.value === 'curve' ? 'inline' : 'none';
 });
 
-// 工具函数
-function updateStatus(text) {
-    document.getElementById('status').textContent = text;
-}
-
+// ======================
 // 初始化
+// ======================
 window.onload = function() {
     initCanvases(400, 400);
     updateStatus("请先上传原图");
 
-    // 绑定按钮点击事件
     document.getElementById('uploadBtn').addEventListener('click', function() {
         document.getElementById('upload').click();
     });
