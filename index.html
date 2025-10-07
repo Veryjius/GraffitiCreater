@@ -7,62 +7,83 @@
     <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
-    <!-- 文件上传区域 -->
-    <div class="upload-group">
-        <button id="uploadBtn">上传原图</button>
-        <button id="uploadProgressBtn">上传进度</button>
-        <input type="file" id="upload" accept="image/*" hidden>
-        <input type="file" id="uploadProgress" accept="image/*" hidden>
-    </div>
+
     
     <!-- 控制面板 -->
+	
     <div class="controls">
-        <!-- 新增线条类型控制 -->
-        <div class="control-group">
-            <label>线条类型：</label>
-            <select id="lineStyle">
-                <option value="solid">实线</option>
-                <option value="dashed">虚线</option>
-                <option value="dotted">点线</option>
-                <option value="dashDot">点划线</option>
-				<option value="circleDot">圆点模式</option> <!-- 新增项 -->
-                <option value="random">随机样式</option>
-            </select>
+        <!-- 缩略图预览区域 -->
+        <div class="original-thumbnail-container">
+            <div class="original-thumbnail" id="originalThumbnail">
+                <canvas id="originalThumbnailCanvas"></canvas>
+                <div class="thumbnail-label">原图</div>
+            </div>
         </div>
+        <div class="thumbnail-container">
+            <div class="thumbnail-grid" id="thumbnailGrid">
+                <!-- 3x3 缩略图将通过JavaScript动态生成 -->
+            </div>
+        </div>
+		    <!-- 文件上传区域 -->
+        <div class="control-content">
+			<div class="upload-group">
+				<button id="uploadBtn">上传原图</button>
+				<button id="uploadProgressBtn">上传进度</button>
+				<input type="file" id="upload" accept="image/*" hidden>
+				<input type="file" id="uploadProgress" accept="image/*" hidden>
+			</div>
+            <!-- 新增线条类型控制 -->
+            <div class="control-group">
+                <label>线条类型：</label>
+                <select id="lineStyle">
+                    <option value="solid">实线</option>
+                    <option value="dashed">虚线</option>
+                    <option value="dotted">点线</option>
+                    <option value="dashDot">点划线</option>
+                    <option value="circleDot">圆点模式</option>
+                    <option value="random">随机样式</option>
+                </select>
+            </div>
 
-        <!-- 原有其他控制项保持不变 -->
-        <div class="control-group">
-            <label>线段类型模式：</label>
-            <select id="lineMode">
-                <option value="straight">仅直线</option>
-                <option value="curve">曲线模式</option>
-            </select>
-            <span id="curveControls" style="display:none;">
-                二次曲线概率 <input type="number" id="quadProb" value="30" min="0" max="100" step="5">%
-            </span>
-        </div>
-		
-        <div class="control-group">
-            <label>起始点模式：</label>
-            <select id="startPointMode">
-                <option value="random">完全随机</option>
-                <option value="user">用户选定起点</option>
-                <option value="center">从中心开始</option>
-                <option value="border">从四周开始</option>
-            </select>
-        </div>
+            <!-- 原有其他控制项保持不变 -->
+            <div class="control-group">
+                <label>线段类型模式：</label>
+                <select id="lineMode">
+                    <option value="straight">仅直线</option>
+                    <option value="curve">曲线模式</option>
+                </select>
+                <span id="curveControls" style="display:none;">
+                    二次曲线概率 <input type="number" id="quadProb" value="30" min="0" max="100" step="5">%
+                </span>
+            </div>
+            
+            <div class="control-group">
+                <label>起始点模式：</label>
+                <select id="startPointMode">
+                    <option value="random">完全随机</option>
+                    <option value="user">用户选定起点</option>
+                    <option value="center">从中心开始</option>
+                    <option value="border">从四周开始</option>
+                </select>
+            </div>
 
-        <div class="control-group">
-            <label>
-                <input type="checkbox" id="colorFit"> 启用颜色拟合
-            </label>
-            <label style="height: 30px ; width: 400px;">
-                线条粗细：
-                <input type="number" id="minWidth" value="1" min="1" max="50"> -
-                <input type="number" id="maxWidth" value="5" min="1" max="50">
-            </label>
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="colorFit"> 启用颜色拟合
+                </label>
+                <label style="height: 30px ; width: 400px;">
+                    线条粗细：
+                    <input type="number" id="minWidth" value="1" min="1" max="50"> -
+                    <input type="number" id="maxWidth" value="5" min="1" max="50">
+                </label>
+            </div>
+			<div class="control-group">
+                <!-- 控制按钮 -->
+				<button id="drawBtn">开始绘制</button>
+				<span id="status">准备就绪</span>
+            </div>
+			
         </div>
-
     </div>
 
     <!-- 画布容器 -->
@@ -71,9 +92,7 @@
         <canvas id="myCanvas"></canvas>
     </div>
     
-    <!-- 控制按钮 -->
-    <button id="drawBtn">开始绘制</button>
-    <span id="status">准备就绪</span>
+    
 
     <script src="scripts/app.js"></script>
 </body>
