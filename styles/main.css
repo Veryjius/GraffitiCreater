@@ -18,31 +18,136 @@ canvas {
     border-radius: 8px;
     background: white;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+}
+.control-content {
+    flex: 2; /* 控制项占据更多空间 */
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+	order: 1;
+}
+.original-thumbnail-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+	order: 2;
+}
+.thumbnail-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+	order: 3;
+}
+.original-thumbnail {
+    border: 1px solid #ccc;
+    background: #f8f8f8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1 / 1; /* 保持正方形 */
+    max-height: 100%;
+}
+.original-thumbnail .thumbnail-label {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 2px 6px;
+    font-size: 11px;
+    border-radius: 3px;
+    line-height: 1;
+    z-index: 2;
+}
+.thumbnail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 4px;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1 / 1; /* 保持正方形 */
+    max-height: 100%;
+}
+.thumbnail-item {
+    border: 1px solid #ccc;
+    background: #f8f8f8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+}
+.thumbnail-item:hover {
+    border-color: #2196F3;
+    background: #f0f7ff;
+}
+.thumbnail-item .thumbnail-label {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 1px 3px;
+    font-size: 8px;
+    border-radius: 2px;
+    line-height: 1;
+    z-index: 2;
+}
+.thumbnail-canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+#originalThumbnailCanvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
 }
 .control-group {
-    margin: 15px 0;
-    padding: 10px;
+    margin: 10px 0;
+    padding: 8px;
     border-bottom: 1px solid #eee;
+}
+.control-group:last-child {
+    border-bottom: none;
 }
 label {
     display: inline-block;
-    width: 200px;
-    margin-right: 15px;
+    width: 150px;
+    margin-right: 10px;
     font-weight: bold;
+    font-size: 14px;
 }
 select, input[type="number"] {
-    padding: 6px;
-    margin-right: 10px 100px;
+    padding: 5px 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
+    font-size: 14px;
 }
 button {
-    padding: 10px 25px;
+    padding: 8px 16px;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background 0.3s;
+    font-size: 14px;
 }
 #uploadBtn {
     background: #2196F3;
@@ -72,4 +177,11 @@ button {
 }
 .upload-group {
     margin: 10px 0;
+}
+.drag-over {
+    border: 3px dashed #2196F3 !important;
+    background-color: #e3f2fd !important;
+}
+.controls {
+    min-height: 250px;
 }
